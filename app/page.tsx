@@ -386,6 +386,45 @@ function VisualPanel({
   );
 }
 
+function CampaignFilm() {
+  return (
+    <Panel id="film" bg={DARK} label="FILM" className="h-[100svh] overflow-hidden text-white">
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        src="/images/kling_20260704_VIDEO_Cinematic__2508_0.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label="SIGNIFIER campaign film"
+      />
+      <div className="absolute inset-0 bg-black/25" aria-hidden />
+      <div className="absolute inset-x-0 bottom-[12%] z-10 flex flex-col items-center gap-5 px-6 text-center">
+        <MaskReveal
+          lines={["CAMPAIGN FILM"]}
+          delay={250}
+          className="text-4xl tracking-[0.14em] md:text-6xl lg:text-7xl"
+        />
+        <Reveal delay={520} from="translateY(16px)">
+          <p className="text-[12px] leading-relaxed tracking-[0.3em] md:text-[13px]">
+            2026 FALL WINTER
+          </p>
+        </Reveal>
+        <Reveal delay={680} from="translateY(12px)">
+          <Link
+            href="/collections/all"
+            data-cursor="VIEW"
+            className="border-b border-white pb-1 text-[13px] tracking-[0.25em] transition-opacity hover:opacity-60"
+          >
+            VIEW COLLECTION
+          </Link>
+        </Reveal>
+      </div>
+    </Panel>
+  );
+}
+
 /* ------------------------------- page ------------------------------- */
 
 export default function Home() {
@@ -427,6 +466,9 @@ export default function Home() {
         <Panel bg={DARK} label="INTRO" className="h-[100svh] overflow-hidden">
           <HeroCarousel />
         </Panel>
+
+        {/* ---------- campaign film ---------- */}
+        <CampaignFilm />
 
         {/* ---------- 01 PICK UP ---------- */}
         <Panel id="pickup" bg={BG} label="PICK UP">
