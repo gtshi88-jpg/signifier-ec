@@ -10,6 +10,7 @@ import {
   RED,
   Reveal,
   u,
+  useReveal,
 } from "../../components/chrome";
 
 /*
@@ -331,7 +332,10 @@ export default function ProductPage({ params }: { params: Promise<{ handle: stri
 /* red editorial band about the sign */
 function StoryBand() {
   return (
-    <section className="relative -mx-6 mt-24 overflow-hidden md:-mx-16 lg:-mx-24">
+    <section
+      className="relative -mx-6 mt-24 overflow-hidden md:-mx-16 lg:-mx-24"
+      style={{ background: RED }}
+    >
       <RedWipe />
       <div className="relative grid items-center gap-10 px-6 py-20 text-white md:grid-cols-[1fr_1.2fr] md:px-24 md:py-28">
         <Reveal delay={300}>
@@ -354,10 +358,7 @@ function StoryBand() {
           </p>
           <Link
             href="/"
-            className="mt-8 inline-block border border-white/70 px-8 py-3 text-[12px] tracking-[0.3em] transition-colors hover:bg-white"
-            style={{ ["--tw-hover-color" as string]: RED }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = RED)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+            className="mt-8 inline-block border border-white/70 px-8 py-3 text-[12px] tracking-[0.3em] text-white transition-colors hover:bg-white hover:text-[#b0301c]"
           >
             VIEW COLLECTION
           </Link>
@@ -368,9 +369,17 @@ function StoryBand() {
 }
 
 function RedWipe() {
+  const { ref, shown } = useReveal<HTMLDivElement>(0.15);
   return (
-    <Reveal from="translateX(-100%)" className="absolute inset-0" delay={0}>
-      <div className="h-full w-full" style={{ background: RED }} />
-    </Reveal>
+    <div
+      ref={ref}
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background: "rgba(0,0,0,0.14)",
+        transform: shown ? "translateX(0)" : "translateX(-100%)",
+        transition: "transform 1.3s cubic-bezier(.76,0,.24,1)",
+      }}
+    />
   );
 }

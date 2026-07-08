@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export const RED = "#b0301c";
@@ -11,14 +12,16 @@ export const u = (id: string, w = 1600) =>
   `https://${id.startsWith("premium_") ? "plus" : "images"}.unsplash.com/${id}?q=80&w=${w}&auto=format&fit=crop`;
 
 export const nav = ["Item", "About", "Gallery", "Journal", "News", "Press"];
+const navLeft = nav.slice(0, 5);
+const navRight = nav.slice(5);
 
 export const navLinks: Record<string, string> = {
   Item: "/collections/all",
   About: "/pages/philosophy",
   Gallery: "/pages/gallery",
-  Journal: "/#journal",
-  News: "/#news",
-  Press: "/#press",
+  Journal: "/pages/journal",
+  News: "/pages/news",
+  Press: "/pages/press",
 };
 
 export const footerGroups: { heading: string; links: { label: string; href: string }[] }[] = [
@@ -317,9 +320,26 @@ export function Cursor() {
 
 /* --------------------------- header / footer --------------------------- */
 
+type HeaderTheme = "blend" | "light" | "dark";
+
+function useHeaderTheme(): HeaderTheme {
+  const pathname = usePathname();
+  if (pathname === "/") return "blend";
+  if (pathname.startsWith("/pages/press")) return "dark";
+  return "light";
+}
+
 export function Header() {
+  const theme = useHeaderTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+
+  const desktopThemeClass =
+    theme === "blend"
+      ? "lg:text-white lg:mix-blend-difference"
+      : theme === "dark"
+        ? "lg:text-white"
+        : "lg:text-neutral-900";
 
   /* lock body scroll while the mobile drawer is open */
   useEffect(() => {
@@ -344,83 +364,118 @@ export function Header() {
   }, []);
 
   return (
-    <header
-      className="fixed inset-x-0 top-0 z-50 transition-transform duration-500 ease-out"
-      style={{ transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)" }}
-    >
-      {/* difference blend: dark on light panels, light over photography */}
-      <div className="relative flex h-16 items-center justify-between px-4 text-[16px] text-white mix-blend-difference md:h-20 md:px-10 md:text-[18px]">
-        {/* mobile hamburger */}
-        <button
-          aria-label="Menu"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen(true)}
-          className="flex h-11 w-11 flex-col items-center justify-center gap-[6px] md:hidden"
+    <>
+      <header className="fixed inset-x-0 top-0 z-50">
+        <div
+          className="transition-transform duration-500 ease-out"
+          style={{ transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)" }}
         >
-          <span className="block h-px w-6 bg-current" />
-          <span className="block h-px w-6 bg-current" />
-          <span className="block h-px w-6 bg-current" />
-        </button>
+          {/* blend on home hero; dark text on light pages; white text on press */}
+          <div
+            className={`relative px-4 text-[16px] text-neutral-900 lg:px-10 lg:text-[18px] ${desktopThemeClass}`}
+          >
+            {/* mobile / tablet bar */}
+            <div className="flex h-16 items-center justify-between lg:hidden">
+              <button
+                aria-label="Menu"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen(true)}
+                className="flex h-11 w-11 flex-col items-center justify-center gap-[6px] rounded-sm bg-black/50 text-white shadow-sm backdrop-blur-sm"
+              >
+                <span className="block h-px w-6 bg-current" />
+                <span className="block h-px w-6 bg-current" />
+                <span className="block h-px w-6 bg-current" />
+              </button>
+              <Link
+                href="/"
+                aria-label="signifier home"
+                className="rounded-sm bg-black/50 px-3 py-1.5 text-white shadow-sm backdrop-blur-sm"
+              >
+                <Logo className="h-10 w-8" />
+              </Link>
+              <Link
+                href="/cart"
+                className="u-line rounded-sm bg-black/50 px-3 py-2 text-[14px] text-white shadow-sm backdrop-blur-sm"
+              >
+                Cart(2)
+              </Link>
+            </div>
 
-        <nav className="hidden gap-9 md:flex">
-          {nav.map((n) => (
-            <Link key={n} href={navLinks[n] ?? "/"} className="u-line">
-              {n}
-            </Link>
-          ))}
-        </nav>
-        <Link href="/" aria-label="signifier home" className="absolute left-1/2 -translate-x-1/2">
-          <Logo className="h-10 w-8 md:h-11 md:w-9" />
-        </Link>
-        <div className="flex items-center gap-5 md:gap-9">
-          <button aria-label="Search" className="hidden transition-opacity hover:opacity-60 sm:block">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="10.5" cy="10.5" r="6.5" />
-              <path d="M15.5 15.5 L21 21" />
-            </svg>
-          </button>
-          <Link href="/login" className="u-line hidden md:inline">Login</Link>
-          <Link href="/wishlist" className="u-line hidden md:inline">Wishlist(3)</Link>
-          <Link href="/cart" className="u-line">Cart(2)</Link>
+            {/* desktop bar: 3-column grid keeps nav clear of the centered logo */}
+            <div className="hidden h-20 grid-cols-[minmax(0,1fr)_auto_minmax(0,1.15fr)] items-center lg:grid">
+              <nav className="flex min-w-0 items-center justify-end gap-6 pr-10 xl:gap-9 xl:pr-12">
+                {navLeft.map((n) => (
+                  <Link key={n} href={navLinks[n] ?? "/"} className="u-line shrink-0 whitespace-nowrap">
+                    {n}
+                  </Link>
+                ))}
+              </nav>
+
+              <Link href="/" aria-label="signifier home" className="shrink-0 px-8">
+                <Logo className="h-11 w-9" />
+              </Link>
+
+              <div className="flex min-w-0 items-center justify-start gap-6 pl-10 xl:gap-9 xl:pl-12">
+                {navRight.map((n) => (
+                  <Link key={n} href={navLinks[n] ?? "/"} className="u-line shrink-0 whitespace-nowrap">
+                    {n}
+                  </Link>
+                ))}
+                <button
+                  aria-label="Search"
+                  className="shrink-0 transition-opacity hover:opacity-60"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="10.5" cy="10.5" r="6.5" />
+                    <path d="M15.5 15.5 L21 21" />
+                  </svg>
+                </button>
+                <Link href="/login" className="u-line shrink-0 whitespace-nowrap">Login</Link>
+                <Link href="/wishlist" className="u-line shrink-0 whitespace-nowrap">Wishlist(3)</Link>
+                <Link href="/cart" className="u-line shrink-0 whitespace-nowrap">Cart(2)</Link>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* ---------- mobile drawer ---------- */}
+      {/* drawer sits outside the transformed header bar so fixed positioning covers the viewport */}
       <div
-        className={`fixed inset-0 z-50 md:hidden ${menuOpen ? "" : "pointer-events-none"}`}
+        className={`fixed inset-0 isolate z-[110] lg:hidden ${menuOpen ? "" : "pointer-events-none"}`}
         aria-hidden={!menuOpen}
       >
         <button
           aria-label="Close menu"
           onClick={() => setMenuOpen(false)}
-          className="absolute inset-0 bg-black/40 transition-opacity duration-300"
+          className="absolute inset-0 bg-black/60 transition-opacity duration-300"
           style={{ opacity: menuOpen ? 1 : 0 }}
         />
         <div
-          className="absolute inset-y-0 left-0 flex w-[82%] max-w-sm flex-col bg-[#f2f0ec] px-8 pb-10 pt-5 transition-transform duration-500"
+          className="absolute inset-y-0 left-0 z-10 flex w-[min(100%,20rem)] flex-col px-8 pb-10 pt-5 text-neutral-900 shadow-[4px_0_32px_rgba(0,0,0,0.18)] transition-transform duration-500"
           style={{
+            backgroundColor: BG,
             transform: menuOpen ? "translateX(0)" : "translateX(-100%)",
             transitionTimingFunction: "cubic-bezier(.22,1,.36,1)",
           }}
         >
-          <div className="flex items-center justify-between">
-            <Logo className="h-10 w-8" />
+          <div className="flex items-center justify-between border-b border-neutral-300/80 pb-5">
+            <Logo className="h-10 w-8 text-neutral-900" />
             <button
               aria-label="Close menu"
               onClick={() => setMenuOpen(false)}
-              className="flex h-11 w-11 items-center justify-center text-2xl"
+              className="flex h-11 w-11 items-center justify-center rounded-sm bg-neutral-900/8 text-2xl text-neutral-900"
             >
               ×
             </button>
           </div>
 
-          <nav className="mt-10 flex flex-col gap-1">
+          <nav className="mt-6 flex flex-col gap-1">
             {nav.map((n, i) => (
               <Link
                 key={n}
                 href={navLinks[n] ?? "/"}
                 onClick={() => setMenuOpen(false)}
-                className="border-b border-neutral-300 py-4 text-xl tracking-[0.15em] transition-opacity hover:opacity-60"
+                className="border-b border-neutral-300/80 py-4 text-xl tracking-[0.15em] text-neutral-900 transition-opacity hover:opacity-60"
                 style={{
                   opacity: menuOpen ? 1 : 0,
                   transform: menuOpen ? "none" : "translateX(-16px)",
@@ -432,15 +487,15 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="mt-auto flex flex-col gap-4 text-[14px] tracking-wider">
+          <div className="mt-auto flex flex-col gap-4 text-[14px] tracking-wider text-neutral-800">
             <Link href="/login" onClick={() => setMenuOpen(false)} className="hover:opacity-60">Login</Link>
             <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="hover:opacity-60">Wishlist(3)</Link>
             <Link href="/cart" onClick={() => setMenuOpen(false)} className="hover:opacity-60">Cart(2)</Link>
-            <Wordmark className="mt-6 text-xl" />
+            <Wordmark className="mt-6 text-xl text-neutral-900" />
           </div>
         </div>
       </div>
-    </header>
+    </>
   );
 }
 

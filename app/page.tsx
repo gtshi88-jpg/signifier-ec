@@ -14,6 +14,9 @@ import {
   useReveal,
   Wordmark,
 } from "./components/chrome";
+import { journalEntries, journalHref } from "./data/journal";
+import { newsEntries, newsHref } from "./data/news";
+import { pressEntries, pressHref } from "./data/press";
 
 /*
  * VERMILLION top page — LP layout study.
@@ -42,36 +45,6 @@ const pickUp = [
   { name: "Wide Pleated Trousers", price: "¥52,800", img: "/images/fashion/pickup-wide-trousers.png" },
 ];
 
-const journalPosts = [
-  {
-    date: "2026.06.21",
-    title: "アトリエ便り: 黒を仕立てる手",
-    img: "/images/fashion/pickup-tailored-jacket.png",
-  },
-  {
-    date: "2026.05.30",
-    title: "素材考 — ウールギャバジンの落ち感について",
-    img: "/images/fashion/pickup-wide-trousers.png",
-  },
-  {
-    date: "2026.04.12",
-    title: "しるしを纏う、7つの習慣",
-    img: "/images/fashion/detail-ring-fingertips.png",
-  },
-];
-
-const newsEntries = [
-  { date: "2026.06.28", tag: "SHOP", text: "阪急うめだ本店 POP UP STORE 開催のお知らせ(7/9–7/22)" },
-  { date: "2026.06.15", tag: "ITEM", text: "Zodiac コレクションに かに座の新作が加わりました" },
-  { date: "2026.05.20", tag: "INFO", text: "夏季休業期間中の配送スケジュールについて" },
-  { date: "2026.04.28", tag: "ITEM", text: "Customize リングのオーダー受付を再開しました" },
-];
-
-const pressEntries = [
-  { media: "MUSE MAGAZINE", issue: "2026年7月号", text: "特集「星を纏う」にて Zodiac イヤーカフが紹介されました" },
-  { media: "LUNE", issue: "vol.48", text: "連載コラム内で Cosmic Gem リングが掲載されました" },
-  { media: "ORBIT WEB", issue: "2026.05", text: "デザイナーインタビューが公開されました" },
-];
 
 /* ---------- opening / scroll texture ---------- */
 
@@ -543,20 +516,20 @@ export default function Home() {
           <div className="flex min-h-[100svh] flex-col justify-center px-6 py-24 md:min-h-0 md:h-full md:py-0 md:px-36">
             <SectionHead no="05." title="JOURNAL" />
             <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-3">
-              {journalPosts.map((p, i) => (
-                <a key={p.title} href="#" data-cursor="READ" className="group block">
+              {journalEntries.slice(0, 3).map((p, i) => (
+                <Link key={p.slug} href={journalHref(p.slug)} data-cursor="READ" className="group block">
                   <CurtainImage src={p.img} alt={p.title} ratio="4/3" delay={i * 150} curtain="#e7e2da" />
                   <Reveal delay={i * 150 + 200}>
                     <p className="mt-4 text-[11px] tracking-[0.25em] text-neutral-400">{p.date}</p>
                     <p className="mt-2 text-[14px] leading-7 group-hover:opacity-60">{p.title}</p>
                   </Reveal>
-                </a>
+                </Link>
               ))}
             </div>
             <Reveal delay={600}>
-              <a href="#" className="mt-12 inline-block text-[13px] tracking-[0.3em]" style={{ color: RED }}>
+              <Link href="/pages/journal" className="mt-12 inline-block text-[13px] tracking-[0.3em]" style={{ color: RED }}>
                 READ MORE →
-              </a>
+              </Link>
             </Reveal>
           </div>
         </Panel>
@@ -567,22 +540,25 @@ export default function Home() {
           <div className="mx-auto flex min-h-[100svh] max-w-4xl flex-col justify-center px-6 py-24 md:min-h-0 md:h-full md:py-0">
             <SectionHead no="06." title="NEWS" />
             <ul className="mt-10 md:mt-14">
-              {newsEntries.map((n, i) => (
-                <li key={n.text} className="border-t border-neutral-300 last:border-b">
+              {newsEntries.slice(0, 4).map((n, i) => (
+                <li key={n.slug} className="border-t border-neutral-300 last:border-b">
                   <Reveal delay={i * 120}>
-                    <a href="#" className="group flex flex-col gap-2 py-6 md:flex-row md:items-center md:gap-10">
+                    <Link
+                      href={newsHref(n.slug)}
+                      className="group flex flex-col gap-2 py-6 md:flex-row md:items-center md:gap-10"
+                    >
                       <span className="text-[12px] tracking-[0.2em] text-neutral-400">{n.date}</span>
                       <span className="w-14 text-[10px] tracking-[0.25em]" style={{ color: RED }}>{n.tag}</span>
                       <span className="text-[14px] leading-7 group-hover:opacity-60">{n.text}</span>
-                    </a>
+                    </Link>
                   </Reveal>
                 </li>
               ))}
             </ul>
             <Reveal delay={600}>
-              <a href="#" className="mt-10 inline-block text-[13px] tracking-[0.3em]" style={{ color: RED }}>
+              <Link href="/pages/news" className="mt-10 inline-block text-[13px] tracking-[0.3em]" style={{ color: RED }}>
                 VIEW ALL →
-              </a>
+              </Link>
             </Reveal>
           </div>
         </Panel>
@@ -593,19 +569,24 @@ export default function Home() {
           <div className="mx-auto flex min-h-[100svh] max-w-4xl flex-col justify-center px-6 py-24 md:min-h-0 md:h-full md:py-0">
             <SectionHead no="07." title="PRESS" light />
             <div className="mt-10 md:mt-14">
-              {pressEntries.map((p, i) => (
-                <Reveal key={p.media} delay={i * 150}>
-                  <a href="#" className="group block border-t border-white/20 py-8 last:border-b">
+              {pressEntries.slice(0, 3).map((p, i) => (
+                <Reveal key={p.slug} delay={i * 150}>
+                  <Link href={pressHref(p.slug)} className="group block border-t border-white/20 py-8 last:border-b">
                     <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:gap-10">
                       <span className="text-lg tracking-[0.15em] md:w-56">{p.media}</span>
                       <span className="text-[12px] tracking-[0.2em] text-white/50">{p.issue}</span>
                       <span className="text-[14px] leading-7 text-white/85 group-hover:opacity-60">{p.text}</span>
                     </div>
-                  </a>
+                  </Link>
                 </Reveal>
               ))}
             </div>
             <Reveal delay={550}>
+              <Link href="/pages/press" className="mt-10 inline-block text-[13px] tracking-[0.3em]" style={{ color: RED }}>
+                VIEW ALL →
+              </Link>
+            </Reveal>
+            <Reveal delay={650}>
               <div className="mt-16 flex flex-col items-center text-white/90">
                 <Logo className="h-12 w-10" />
                 <Wordmark className="mt-2 text-2xl" />
